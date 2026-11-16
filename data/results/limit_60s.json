@@ -1,0 +1,21 @@
+{
+  "algorithm": "brute",
+  "language": "Python",
+  "input": "empty board",
+  "repetitions_per_n": 1,
+  "observations": [
+    {
+      "n": 10,
+      "status": "completed",
+      "solutions": 724,
+      "leaves": 3628800,
+      "algorithm_seconds": 29.4344669,
+      "wall_seconds": 29.680583499954082
+    },
+    {
+      "n": 11,
+      "status": "timeout",
+      "limit_seconds": 60
+    }
+  ]
+}

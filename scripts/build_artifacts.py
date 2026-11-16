@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import math
 from pathlib import Path
 
@@ -27,9 +28,12 @@ SUMMARY = list(csv.DictReader((ROOT / "data" / "results" / "summary.csv").open(e
 DATA = {(r["instance"], r["language"], r["algorithm"]): r for r in SUMMARY}
 MEMORY_SUMMARY = list(csv.DictReader((ROOT / "data" / "results" / "memory_summary.csv").open(encoding="utf-8")))
 MEMORY = {(r["n"], r["language"], r["algorithm"]): r for r in MEMORY_SUMMARY}
+GEOMETRIC_SUMMARY = list(csv.DictReader((ROOT / "data" / "results" / "geometric_summary.csv").open(encoding="utf-8")))
+GEOMETRIC = {(r["n"], r["language"], r["algorithm"]): r for r in GEOMETRIC_SUMMARY}
+LIMIT = json.loads((ROOT / "data" / "results" / "limit_60s.json").read_text(encoding="utf-8"))
 SIZES = (4, 5, 6, 7, 8, 9)
 MEMORY_SIZES = (6, 12, 24, 48, 96, 192)
-PAPER_URL = "https://www-users.york.ac.uk/~pwn503/n-queens-jair.pdf"
+PAPER_URL = "https://jair.org/index.php/jair/article/view/11079"
 REPO_URL = "https://github.com/Gustavotorrescastro/teoria-computacao-n-rainhas"
 
 
@@ -125,6 +129,24 @@ def plot_all() -> None:
     axes[0].set_ylabel("Pico de alocações dinâmicas (KiB)")
     fig.suptitle("Memória auxiliar medida - seis linhas livres", fontsize=12)
     fig.savefig(FIG / "memoria_alocacoes.png", dpi=200)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(1, 2, figsize=(8.7, 3.7), layout="constrained")
+    for ax, language in zip(axes, ("Python", "C++")):
+        for algorithm, color, label in (("brute", "#bb3e03", "Força bruta"),
+                                        ("backtracking", "#005f73", "Backtracking")):
+            measured = [float(GEOMETRIC[(str(n), language, algorithm)]["mean_ms"])
+                        for n in MEMORY_SIZES]
+            ax.plot(MEMORY_SIZES, measured, marker="o", linewidth=2, color=color, label=label)
+        ax.set(xlabel="Tamanho n (seis linhas livres)", title=language)
+        ax.set_xscale("log", base=2)
+        ax.set_yscale("log")
+        ax.set_xticks(MEMORY_SIZES, [str(n) for n in MEMORY_SIZES])
+        ax.grid(True, which="both", alpha=.23)
+        ax.legend(fontsize=8)
+    axes[0].set_ylabel("Tempo médio (ms)")
+    fig.suptitle("Tempo em seis tamanhos geométricos", fontsize=12)
+    fig.savefig(FIG / "tempos_geometricos.png", dpi=200)
     plt.close(fig)
 
 
@@ -257,6 +279,19 @@ def make_report() -> None:
               *figure("casos_n9.png", "Figura 4. Para n=9, o tabuleiro vazio exige mais busca; a barra parcial é a média de cinco entradas; o completo exige validação curta."),
               p("O caso vazio de n=9 tem 352 soluções; o completo tem 1. As cinco entradas parciais sorteadas têm, respectivamente, 8, 12, 7, 4 e 3 soluções. Há entradas parciais insolúveis, como n=4 com rainha fixa em (0,0); as quatro implementações concordaram. Para instâncias completas, o valor minúsculo de tempo em C++ torna razões de desempenho pouco informativas."),
               PageBreak(),
+              heading("6. Escala geométrica complementar"),
+              p("A série controlada dobra n de 6 a 192 mantendo m=6 linhas livres; as demais rainhas vêm de uma solução válida. Cada implementação recebeu as mesmas seis entradas, com três aquecimentos e 15 repetições, totalizando 360 tempos medidos. Manter m fixo torna a força bruta viável e isola o efeito de n, sem representar o pior caso do tabuleiro vazio. O modelo teórico de A passa a Θ(n·6!)=Θ(n); em B, as posições tentadas ainda dependem das rainhas fixas."),
+              p("Uma sondagem separada, com uma execução por tamanho, registrou o limite de 60 s do tabuleiro vazio na combinação limitante, força bruta em Python: n=10 levou "
+                + number(float(LIMIT["observations"][0]["algorithm_seconds"]), 2)
+                + " s para 3.628.800 folhas; n=11 excedeu 60 s. Essa sondagem não integra as médias de 15 repetições."),
+              table([["n", "A / Python", "B / Python", "A / C++", "B / C++"]] + [
+                  [str(size)] + [number(float(GEOMETRIC[(str(size), lang, alg)]["mean_ms"]), 3)
+                                 for lang, alg in (("Python", "brute"), ("Python", "backtracking"),
+                                                   ("C++", "brute"), ("C++", "backtracking"))]
+                  for size in MEMORY_SIZES], [1.4*cm, 3.75*cm, 3.75*cm, 3.75*cm, 3.75*cm]),
+              p("Tabela: tempo médio em ms para as entradas geométricas, 15 repetições por célula.", "CaptionCustom"),
+              *figure("tempos_geometricos.png", "Figura 5. Tempos médios nas mesmas entradas de tamanho geométrico; seis linhas livres em cada tabuleiro."),
+              PageBreak(),
               heading("6. Bônus: uso de memória"),
               p("A tabela mostra o pico médio de alocações dinâmicas, em KiB, de 15 execuções por célula. O desvio padrão foi zero para as 24 combinações, pois as entradas e os padrões de alocação são determinísticos."),
               table([["n", "A / Python", "B / Python", "A / C++", "B / C++"]] + [
@@ -265,7 +300,7 @@ def make_report() -> None:
                                                    ("C++", "brute"), ("C++", "backtracking"))]
                   for size in MEMORY_SIZES], [1.4*cm, 3.75*cm, 3.75*cm, 3.75*cm, 3.75*cm]),
               Spacer(1, 7),
-              *figure("memoria_alocacoes.png", "Figura 5. Pico de alocações dinâmicas nas entradas de memória. Os painéis têm escalas próprias; compare tendências dentro de cada linguagem."),
+              *figure("memoria_alocacoes.png", "Figura 6. Pico de alocações dinâmicas nas entradas de memória. Os painéis têm escalas próprias; compare tendências dentro de cada linguagem."),
               p("De n=6 a 192 (32 vezes maior), o pico medido passa de 3,09 para 32,02 KiB em Python/A e de 0,18 para 2,00 KiB em C++/A. O crescimento é compatível com estruturas auxiliares O(n): tabuleiro, vetores de ocupação e conjuntos de diagonais crescem com n. Saltos e patamares em Python refletem a capacidade interna de listas e conjuntos. A pilha recursiva não é coberta integralmente por esses contadores: nas entradas medidas, a profundidade máxima atingida é 7 chamadas em A (seis linhas livres) e n+1 em B. Para o problema geral, ambas as pilhas têm limite O(n). Os dados apoiam, mas não provam, a análise assintótica."),
               PageBreak(),
               heading("7. Reflexão sobre P e NP"),
@@ -277,10 +312,12 @@ def make_report() -> None:
                 + PAPER_URL, "SmallCustom"),
               heading("Ambiente, reprodutibilidade e responsabilidades"),
               p("O código-fonte, o gerador, a medição, os testes e os gráficos estão no repositório " + REPO_URL + ". O README contém os comandos de reprodução. Arquivos de entrada e CSVs medidos acompanham o projeto."),
-              p("<b>Responsabilidades atribuídas para revisão e apresentação:</b> Bruno Augusto - conferir força bruta e justificativa assintótica; Gustavo Torres Castro - conferir metodologia, CSVs e gráficos; Diego Magnata - conferir backtracking e testes; Pablo Coelho - conferir texto final, referências e apresentação. Esta distribuição foi definida para a etapa de validação pela equipe e deve ser ajustada para refletir as contribuições efetivamente realizadas antes do envio."),
+              p("<b>Contribuições informadas pela equipe:</b> Bruno Augusto - força bruta e justificativa assintótica; Gustavo Torres Castro - metodologia experimental, CSVs e gráficos; Diego Magnata - backtracking, testes e apresentação; Pablo Coelho - texto final, referências e apresentação. Todos os integrantes participam da revisão e devem conseguir explicar o código e a análise."),
               heading("Declaração de uso de IA"),
-              p("<b>Ferramenta:</b> OpenAI Codex. <b>Finalidades de uso:</b> geração de versões iniciais das implementações em Python e C++, dos scripts de entradas, testes, medição e gráficos; execução dos experimentos; apoio à interpretação dos resultados e à redação inicial do relatório e da apresentação. As medições apresentadas foram executadas no ambiente descrito. Os integrantes devem revisar os materiais e ser capazes de explicar o código e a análise, conforme exigido no projeto."),
-              p("<b>Limitações:</b> A distribuição de responsabilidades acima ainda requer confirmação da equipe. Não se atribuem a integrantes verificações individuais que ainda não foram informadas."),
+              p("Durante o desenvolvimento, utilizamos o <b>ChatGPT (OpenAI Codex)</b> como ferramenta de IA generativa no estudo teórico, na implementação e revisão do código, na preparação dos experimentos, na análise dos resultados e na organização do relatório e da apresentação."),
+              p("A IA foi utilizada diretamente para implementar e ajustar os algoritmos em Python e C++, os scripts de geração de entradas, medição de tempo e memória, testes e gráficos. Também ajudou a entender o funcionamento de cada implementação, discutir escolhas do código, identificar possíveis erros e esclarecer as classificações de complexidade. Na etapa experimental, apoiou a compreensão das métricas, a interpretação dos gráficos e a discussão das diferenças entre Python e C++."),
+              p("<b>Exemplos de consultas:</b> diferenças entre força bruta e backtracking; justificativa de O, Ω e Θ; cuidados ao comparar Python e C++; interpretação de gráficos log-log; distinção entre N-rainhas vazio e completamento; organização de uma apresentação de até sete minutos."),
+              p("<b>Validação e responsabilidade:</b> As respostas e o código produzidos com auxílio da ferramenta foram analisados pela equipe. Os integrantes são responsáveis por compreender as implementações, verificar os testes e resultados apresentados e explicar as conclusões do trabalho."),
               Spacer(1, 12),
               p("Fim do relatório.", "CaptionCustom")]
     doc.build(story)
