@@ -226,7 +226,7 @@ def make_report() -> None:
     story: list = []
     story += [p("N-rainhas: força bruta e backtracking em Python e C++", "TitleCustom"),
               p("<b>Disciplina:</b> Teoria da Computação | <b>Professor:</b> Daniel Bezerra | <b>Data:</b> 16/11/2026"),
-              p("<b>Equipe:</b> Bruno Augusto; Gustavo Torres Castro; Diego Magnata; Pablo Coelho."),
+              p("<b>Equipe:</b> Bruno Augusto da Rocha Leite Filho; Gustavo Torres Castro; Diego Ferreira Magnata; Pablo Coelho Gonçalves de Alcântara Rosendo."),
               p("<b>Resumo.</b> Implementamos quatro programas para contar todas as soluções de N-rainhas, usando o mesmo conjunto de entradas em Python e C++. Em tabuleiro vazio de n=9, a força bruta levou "
                 + number(ms("empty_n9", "Python", "brute")) + " ms em Python e " + number(ms("empty_n9", "C++", "brute"))
                 + " ms em C++; o backtracking levou " + number(ms("empty_n9", "Python", "backtracking")) + " ms e "
