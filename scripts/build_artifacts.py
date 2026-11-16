@@ -25,7 +25,10 @@ PDF = ROOT / "output" / "pdf"
 PRES = ROOT / "output" / "presentation"
 SUMMARY = list(csv.DictReader((ROOT / "data" / "results" / "summary.csv").open(encoding="utf-8")))
 DATA = {(r["instance"], r["language"], r["algorithm"]): r for r in SUMMARY}
+MEMORY_SUMMARY = list(csv.DictReader((ROOT / "data" / "results" / "memory_summary.csv").open(encoding="utf-8")))
+MEMORY = {(r["n"], r["language"], r["algorithm"]): r for r in MEMORY_SUMMARY}
 SIZES = (4, 5, 6, 7, 8, 9)
+MEMORY_SIZES = (6, 12, 24, 48, 96, 192)
 PAPER_URL = "https://www-users.york.ac.uk/~pwn503/n-queens-jair.pdf"
 REPO_URL = "https://github.com/Gustavotorrescastro/teoria-computacao-n-rainhas"
 
@@ -104,6 +107,24 @@ def plot_all() -> None:
     ax.grid(axis="y", which="both", alpha=.23)
     ax.legend(fontsize=8, ncol=2)
     fig.savefig(FIG / "casos_n9.png", dpi=200)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(1, 2, figsize=(8.7, 4.0), layout="constrained", sharey=False)
+    for ax, language in zip(axes, ("Python", "C++")):
+        for algorithm, color, label in (("brute", "#bb3e03", "Força bruta"),
+                                        ("backtracking", "#005f73", "Backtracking")):
+            peaks = [float(MEMORY[(str(n), language, algorithm)]["mean_peak_bytes"]) / 1024
+                     for n in MEMORY_SIZES]
+            ax.plot(MEMORY_SIZES, peaks, marker="o", linewidth=2, color=color, label=label)
+        ax.set(xlabel="Tamanho n", title=language)
+        ax.set_xscale("log", base=2)
+        ax.set_yscale("log")
+        ax.set_xticks(MEMORY_SIZES, [str(n) for n in MEMORY_SIZES])
+        ax.grid(True, which="both", alpha=.23)
+        ax.legend(fontsize=8)
+    axes[0].set_ylabel("Pico de alocações dinâmicas (KiB)")
+    fig.suptitle("Memória auxiliar medida - seis linhas livres", fontsize=12)
+    fig.savefig(FIG / "memoria_alocacoes.png", dpi=200)
     plt.close(fig)
 
 
@@ -197,7 +218,7 @@ def make_report() -> None:
               p("<b>Pseudocódigo A:</b> para cada permutação das colunas livres, formar tabuleiro; percorrer as n linhas checando diagonais; se válido, incrementar contador."),
               p("<b>Pseudocódigo B:</b> busca(linha): se linha=n, incrementar contador; senão, para cada coluna permitida na linha, se coluna e diagonais estiverem livres, marcar, chamar busca(linha+1), desmarcar."),
               heading("2. Classificação assintótica"),
-              p("Na força bruta, cada uma das m! permutações custa Θ(n) para verificar diagonais. A geração também é limitada por O(m! m); como m≤n, o custo total em instâncias válidas é <b>Θ(n·m!)</b>, além da leitura/validação Θ(n). Para o tabuleiro vazio, m=n: <b>O(n·n!), Ω(n·n!) e Θ(n·n!)</b>. A memória auxiliar é O(n), excluída a pilha recursiva que também tem O(n)."),
+              p("Na força bruta, cada uma das m! permutações custa Θ(n) para verificar diagonais. A geração também é limitada por O(m! m); como m≤n, o custo total em instâncias válidas é <b>Θ(n·m!)</b>, além da leitura/validação Θ(n). Para o tabuleiro vazio, m=n: <b>O(n·n!), Ω(n·n!) e Θ(n·n!)</b>. A memória auxiliar, incluindo a pilha recursiva, é O(n)."),
               p("No backtracking, defina A(n,P) como o número de posições candidatas efetivamente examinadas para a entrada parcial P. Cada tentativa usa O(1), mais a validação inicial Θ(n), logo o custo específico da entrada é <b>Θ(n + A(n,P))</b>. Isso dá O(n·n!) no pior limite combinatório e Ω(n) pelo processamento da entrada. A expressão Θ(n + A(n,P)) é o limite apertado; chamar Θ(n!) para toda entrada seria incorreto, pois a poda varia com P. A memória auxiliar, inclusive pilha, é O(n)."),
               heading("3. Melhor caso, pior caso e caso médio"),
               p("No cenário sem rainhas fixas, A visita exatamente n! folhas para todo n, portanto seu custo praticamente independe de haver poucas ou muitas soluções. B tenta menos posições quando conflitos diagonais surgem cedo. Uma solução completamente fixada é o caso favorável para ambos: apenas uma configuração é verificada, com custo Θ(n). O tabuleiro vazio amplia a busca e é o caso adverso observado no conjunto medido. Cinco entradas parciais aleatórias por tamanho formam o cenário médio amostral. Essa média não representa todas as configurações possíveis."),
@@ -208,6 +229,7 @@ def make_report() -> None:
               heading("5. Simulação e metodologia experimental"),
               p("O script de geração usa semente 20261116. Para cada n=4,5,6,7,8,9 há um tabuleiro vazio, cinco tabuleiros parciais com duas rainhas não atacantes sorteadas sem condicionar à existência de solução e um tabuleiro completamente preenchido; acrescentou-se n=4 com primeira rainha na coluna 0, impossível de completar. São 43 entradas. O incremento de uma unidade em n multiplica o espaço de permutações por n; por isso seis tamanhos pequenos já cobrem um crescimento maior que geométrico de trabalho, sem impor execuções inviáveis."),
               p("Cada combinação de linguagem e algoritmo usa o mesmo arquivo de entrada. O processo lê o arquivo antes do cronômetro; cada execução temporizada inclui somente a função do algoritmo. Há três aquecimentos e 15 execuções medidas por entrada. As médias, desvios padrão, medianas e medidas brutas são salvos em CSV. A compilação C++ usa g++ 15.2.0 com -O2 -std=c++17; Python 3.13.9. Ambiente: Intel Core i7-1355U (10 núcleos, 12 threads), 23,6 GiB de RAM e Windows 11 Home Single Language 10.0.26300."),
+              p("Para o bônus de memória, uma rodada separada usa n=6,12,24,48,96,192, sempre com seis linhas livres e as demais rainhas fixas em uma solução válida. Assim as quatro versões recebem exatamente a mesma entrada, mas o fatorial das linhas livres permanece viável. São 15 processos independentes por combinação. Em Python, tracemalloc mede o pico de alocações rastreadas durante a chamada; em C++, um contador de operator new mede o pico de bytes dinamicamente alocados pelas mesmas funções. Leitura, inicialização do processo e escrita da saída ficam fora da medição. As medidas não são memória residente total e não devem ser comparadas diretamente entre linguagens."),
               p("A corretude foi verificada pelas quatro implementações nas 43 entradas, por contagens conhecidas dos tabuleiros vazios e por testes automatizados de casos de borda. Todos os programas retornaram os mesmos resultados. Tempos muito curtos, sobretudo em C++ com n pequeno ou tabuleiro completo, sofrem maior ruído de relógio e escalonamento; as conclusões de desempenho se apoiam sobretudo em n≥7."),
               heading("6. Gráficos e tabelas comparativas"),
               p("A tabela apresenta média ± desvio padrão em milissegundos, com 15 repetições por célula, para entradas vazias. A coluna de soluções confirma a saída comum."),
@@ -234,6 +256,17 @@ def make_report() -> None:
               heading("6. Efeito das entradas forçadas"),
               *figure("casos_n9.png", "Figura 4. Para n=9, o tabuleiro vazio exige mais busca; a barra parcial é a média de cinco entradas; o completo exige validação curta."),
               p("O caso vazio de n=9 tem 352 soluções; o completo tem 1. As cinco entradas parciais sorteadas têm, respectivamente, 8, 12, 7, 4 e 3 soluções. Há entradas parciais insolúveis, como n=4 com rainha fixa em (0,0); as quatro implementações concordaram. Para instâncias completas, o valor minúsculo de tempo em C++ torna razões de desempenho pouco informativas."),
+              PageBreak(),
+              heading("6. Bônus: uso de memória"),
+              p("A tabela mostra o pico médio de alocações dinâmicas, em KiB, de 15 execuções por célula. O desvio padrão foi zero para as 24 combinações, pois as entradas e os padrões de alocação são determinísticos."),
+              table([["n", "A / Python", "B / Python", "A / C++", "B / C++"]] + [
+                  [str(size)] + [number(float(MEMORY[(str(size), lang, alg)]["mean_peak_bytes"]) / 1024, 2)
+                                 for lang, alg in (("Python", "brute"), ("Python", "backtracking"),
+                                                   ("C++", "brute"), ("C++", "backtracking"))]
+                  for size in MEMORY_SIZES], [1.4*cm, 3.75*cm, 3.75*cm, 3.75*cm, 3.75*cm]),
+              Spacer(1, 7),
+              *figure("memoria_alocacoes.png", "Figura 5. Pico de alocações dinâmicas nas entradas de memória. Os painéis têm escalas próprias; compare tendências dentro de cada linguagem."),
+              p("De n=6 a 192 (32 vezes maior), o pico medido passa de 3,09 para 32,02 KiB em Python/A e de 0,18 para 2,00 KiB em C++/A. O crescimento é compatível com estruturas auxiliares O(n): tabuleiro, vetores de ocupação e conjuntos de diagonais crescem com n. Saltos e patamares em Python refletem a capacidade interna de listas e conjuntos. A pilha recursiva não é coberta integralmente por esses contadores: nas entradas medidas, a profundidade máxima atingida é 7 chamadas em A (seis linhas livres) e n+1 em B. Para o problema geral, ambas as pilhas têm limite O(n). Os dados apoiam, mas não provam, a análise assintótica."),
               PageBreak(),
               heading("7. Reflexão sobre P e NP"),
               p("É essencial definir a pergunta. A <b>decisão do N-rainhas vazio</b> - existe uma solução? - está em P: basta verificar n, pois há solução para n=1 e n≥4 e não há para n=2 ou 3 [1]. Nosso experimento, por escolha metodológica, <b>conta todas as soluções</b>, uma tarefa diferente e muito mais cara que decidir existência. Portanto, o crescimento medido não demonstra que a decisão esteja fora de P."),
@@ -302,6 +335,10 @@ def make_slides() -> None:
                       f"C++: poda {number(ms('empty_n9','C++','brute')/ms('empty_n9','C++','backtracking'),1)}x mais rápida",
                       "352 soluções; 362.880 permutações completas em A", "72.378 tentativas de posição em B"], h-145)
     c.showPage()
+    slide_title(c, "Bônus: memória auxiliar")
+    c.drawImage(str(FIG / "memoria_alocacoes.png"), 52, 30, width=w-104, height=h-135,
+                preserveAspectRatio=True, anchor="c")
+    c.showPage()
     slide_title(c, "P, NP e o problema vizinho")
     slide_bullets(c, ["Decidir N-rainhas vazio está em P", "Contar soluções é outra tarefa", "Completar tabuleiro parcial é NP-completo", "Pré-posições codificam restrições arbitrárias"], h-145)
     c.setFont("Arial", 8)
@@ -316,9 +353,10 @@ def make_slides() -> None:
 3. **1:40-2:35 - Diego:** limites assintóticos e por que a poda ajuda.
 4. **2:35-3:25 - Gustavo:** entradas, semente, repetição, temporização e testes.
 5. **3:25-4:25 - Gustavo:** gráfico log-log e comparação entre algoritmos e linguagens.
-6. **4:25-5:20 - Diego:** números de n=9 e limites de medição.
-7. **5:20-6:35 - Pablo:** P, NP e completamento NP-completo; fonte Gent et al. (2017).
-8. **6:35-7:00 - Todos:** conclusão e transição para perguntas.
+6. **4:25-5:10 - Diego:** números de n=9 e limites de medição.
+7. **5:10-5:45 - Gustavo:** bônus de memória e ressalva sobre pilha e runtime.
+8. **5:45-6:40 - Pablo:** P, NP e completamento NP-completo; fonte Gent et al. (2017).
+9. **6:40-7:00 - Todos:** conclusão e transição para perguntas.
 
 As falas são uma distribuição proposta. Cada integrante deve revisar e conseguir explicar qualquer trecho do código e da análise antes da apresentação.
 """, encoding="utf-8")

@@ -17,6 +17,8 @@ As quatro implementações contam todas as soluções de um tabuleiro `n x n` co
 ```powershell
 python scripts/prepare_inputs.py
 python scripts/benchmark.py --repetitions 15 --warmup 3
+python scripts/prepare_memory_inputs.py
+python scripts/benchmark_memory.py --repetitions 15
 python -m unittest discover -s tests -v
 python scripts/build_artifacts.py
 python scripts/package.py
@@ -24,14 +26,19 @@ python scripts/package.py
 
 O benchmark compila C++ com `-O2 -std=c++17 -Wall -Wextra`. Cada programa lê uma entrada de texto `n k` seguida de `k` pares `linha coluna`, com índices iniciando em zero. O temporizador é acionado somente ao executar o algoritmo, após a leitura; imprimir e gravar resultados também ficam fora da medição. São feitas três rodadas de aquecimento e 15 medições por combinação. As quatro implementações usam as mesmas entradas de `data/inputs/`, geradas com semente fixa `20261116`.
 
+O bônus de memória usa seis entradas adicionais em escala geométrica (`n=6,12,24,48,96,192`), com seis linhas livres em cada uma e as demais rainhas fixas em uma solução válida. Há 15 processos independentes por combinação. Em Python, `tracemalloc` mede o pico de alocações rastreadas durante o algoritmo; em C++, um contador de `operator new` mede o pico de alocações dinâmicas das mesmas funções. Essas medidas excluem a memória base do processo e não cobrem integralmente a pilha; por isso o relatório analisa a profundidade recursiva à parte e não compara os valores absolutos entre linguagens.
+
 Resultados brutos e agregados ficam em `data/results/`. Gráficos em `output/figures/`, relatório em `output/pdf/` e apresentação em `output/presentation/`.
 
 ## Estrutura
 
 - `src/python/nqueens.py`: força bruta por permutações e backtracking com poda em Python.
 - `src/cpp/nqueens.cpp`: as duas implementações em C++.
+- `src/cpp/memory_profile.cpp`: perfil de alocações C++ sem alterar o executável de tempo.
 - `scripts/prepare_inputs.py`: entradas vazias, cinco parciais aleatórias por tamanho, completas e caso impossível.
+- `scripts/prepare_memory_inputs.py`: entradas geométricas para o bônus de memória.
 - `scripts/benchmark.py`: compilação, execução, validação cruzada, CSVs e ambiente.
+- `scripts/benchmark_memory.py` e `scripts/python_memory_profile.py`: medição reproduzível do pico de alocações.
 - `tests/test_correctness.py`: contagens conhecidas, casos de borda e equivalência entre linguagens.
 - `scripts/build_artifacts.py`: gráficos, relatório e slides.
 

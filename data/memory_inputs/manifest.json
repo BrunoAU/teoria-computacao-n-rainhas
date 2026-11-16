@@ -1,0 +1,40 @@
+{
+  "instances": [
+    {
+      "n": 6,
+      "free_rows": 6,
+      "name": "memory_n6",
+      "file": "data/memory_inputs/memory_n6.txt"
+    },
+    {
+      "n": 12,
+      "free_rows": 6,
+      "name": "memory_n12",
+      "file": "data/memory_inputs/memory_n12.txt"
+    },
+    {
+      "n": 24,
+      "free_rows": 6,
+      "name": "memory_n24",
+      "file": "data/memory_inputs/memory_n24.txt"
+    },
+    {
+      "n": 48,
+      "free_rows": 6,
+      "name": "memory_n48",
+      "file": "data/memory_inputs/memory_n48.txt"
+    },
+    {
+      "n": 96,
+      "free_rows": 6,
+      "name": "memory_n96",
+      "file": "data/memory_inputs/memory_n96.txt"
+    },
+    {
+      "n": 192,
+      "free_rows": 6,
+      "name": "memory_n192",
+      "file": "data/memory_inputs/memory_n192.txt"
+    }
+  ]
+}

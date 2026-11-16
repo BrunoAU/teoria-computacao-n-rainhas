@@ -5,8 +5,9 @@
 3. **1:40-2:35 - Diego:** limites assintóticos e por que a poda ajuda.
 4. **2:35-3:25 - Gustavo:** entradas, semente, repetição, temporização e testes.
 5. **3:25-4:25 - Gustavo:** gráfico log-log e comparação entre algoritmos e linguagens.
-6. **4:25-5:20 - Diego:** números de n=9 e limites de medição.
-7. **5:20-6:35 - Pablo:** P, NP e completamento NP-completo; fonte Gent et al. (2017).
-8. **6:35-7:00 - Todos:** conclusão e transição para perguntas.
+6. **4:25-5:10 - Diego:** números de n=9 e limites de medição.
+7. **5:10-5:45 - Gustavo:** bônus de memória e ressalva sobre pilha e runtime.
+8. **5:45-6:40 - Pablo:** P, NP e completamento NP-completo; fonte Gent et al. (2017).
+9. **6:40-7:00 - Todos:** conclusão e transição para perguntas.
 
 As falas são uma distribuição proposta. Cada integrante deve revisar e conseguir explicar qualquer trecho do código e da análise antes da apresentação.

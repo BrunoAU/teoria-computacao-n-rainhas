@@ -1,0 +1,19 @@
+{
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.13.9 (tags/v3.13.9:8183fa5, Oct 14 2025, 14:09:13) [MSC v.1944 64 bit (AMD64)]",
+  "compiler": "g++.EXE (GCC) 15.2.0",
+  "flags": "-O2 -std=c++17 -Wall -Wextra",
+  "repetitions": 15,
+  "sizes": [
+    6,
+    12,
+    24,
+    48,
+    96,
+    192
+  ],
+  "free_rows": 6,
+  "python_metric": "tracemalloc peak traced bytes during algorithm call",
+  "cpp_metric": "peak simultaneously live bytes requested through operator new during algorithm call",
+  "excludes": "process baseline and native call stack; not comparable in absolute value across languages"
+}
