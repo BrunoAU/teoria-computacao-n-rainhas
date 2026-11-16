@@ -3,4 +3,4 @@ tmp/
 __pycache__/
 *.pyc
 .venv/
-output/entrega_n_rainhas.zip
+output/

@@ -32,7 +32,7 @@ Uma série complementar de tempo usa os seis tamanhos geométricos `n=6,12,24,48
 
 O bônus de memória usa seis entradas adicionais em escala geométrica (`n=6,12,24,48,96,192`), com seis linhas livres em cada uma e as demais rainhas fixas em uma solução válida. Há 15 processos independentes por combinação. Em Python, `tracemalloc` mede o pico de alocações rastreadas durante o algoritmo; em C++, um contador de `operator new` mede o pico de alocações dinâmicas das mesmas funções. Essas medidas excluem a memória base do processo e não cobrem integralmente a pilha; por isso o relatório analisa a profundidade recursiva à parte e não compara os valores absolutos entre linguagens.
 
-Resultados brutos e agregados ficam em `data/results/`. Gráficos em `output/figures/`, relatório em `output/pdf/` e apresentação em `output/presentation/`.
+Resultados brutos e agregados ficam em `data/results/`. O script gera gráficos em `output/figures/`, relatório em `output/pdf/` e apresentação em `output/presentation/`. A pasta `output/` é local e não faz parte do repositório; o PDF e os slides são entregues separadamente.
 
 ## Estrutura
 
