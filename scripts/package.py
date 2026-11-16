@@ -5,7 +5,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "output" / "entrega_n_rainhas.zip"
-INCLUDE = [ROOT / "README.md", ROOT / ".gitignore"]
+INCLUDE = [ROOT / "README.md", ROOT / ".gitignore", ROOT / ".gitattributes"]
 for folder in ("src", "scripts", "tests", "data", "output/figures", "output/pdf", "output/presentation"):
     INCLUDE.extend(path for path in (ROOT / folder).rglob("*") if path.is_file())
 

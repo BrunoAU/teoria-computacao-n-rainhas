@@ -2,6 +2,8 @@
 
 Projeto da disciplina **Teoria da Computação**, Prof. Daniel Bezerra. Equipe: Bruno Augusto, Gustavo Torres Castro, Diego Magnata e Pablo Coelho.
 
+**Repositório público:** https://github.com/Gustavotorrescastro/teoria-computacao-n-rainhas
+
 As quatro implementações contam todas as soluções de um tabuleiro `n x n` com zero ou mais rainhas pré-posicionadas. A contagem integral torna as saídas comparáveis e evidencia o custo da busca. O problema de decisão com tabuleiro vazio e a versão de **completar um tabuleiro parcial** têm classificações de complexidade distintas, como explicado no relatório.
 
 ## Requisitos

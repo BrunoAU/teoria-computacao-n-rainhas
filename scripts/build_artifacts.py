@@ -27,6 +27,7 @@ SUMMARY = list(csv.DictReader((ROOT / "data" / "results" / "summary.csv").open(e
 DATA = {(r["instance"], r["language"], r["algorithm"]): r for r in SUMMARY}
 SIZES = (4, 5, 6, 7, 8, 9)
 PAPER_URL = "https://www-users.york.ac.uk/~pwn503/n-queens-jair.pdf"
+REPO_URL = "https://github.com/Gustavotorrescastro/teoria-computacao-n-rainhas"
 
 
 def number(value: float, digits: int = 2) -> str:
@@ -242,11 +243,11 @@ def make_report() -> None:
               p("[1] GENT, Ian P.; JEFFERSON, Christopher; NIGHTINGALE, Peter. Complexity of n-Queens Completion. <i>Journal of Artificial Intelligence Research</i>, v. 59, p. 815-848, 2017. "
                 + PAPER_URL, "SmallCustom"),
               heading("Ambiente, reprodutibilidade e responsabilidades"),
-              p("O código-fonte, o gerador, a medição, os testes e os gráficos estão no diretório do projeto. O README contém os comandos de reprodução. Arquivos de entrada e CSVs medidos acompanham o projeto; o repositório GitHub deve ser publicado pela equipe antes da entrega para fornecer o link solicitado no enunciado."),
+              p("O código-fonte, o gerador, a medição, os testes e os gráficos estão no repositório " + REPO_URL + ". O README contém os comandos de reprodução. Arquivos de entrada e CSVs medidos acompanham o projeto."),
               p("<b>Responsabilidades atribuídas para revisão e apresentação:</b> Bruno Augusto - conferir força bruta e justificativa assintótica; Gustavo Torres Castro - conferir metodologia, CSVs e gráficos; Diego Magnata - conferir backtracking e testes; Pablo Coelho - conferir texto final, referências e apresentação. Esta distribuição foi definida para a etapa de validação pela equipe e deve ser ajustada para refletir as contribuições efetivamente realizadas antes do envio."),
               heading("Declaração de uso de IA"),
               p("<b>Ferramenta:</b> OpenAI Codex. <b>Finalidades de uso:</b> geração de versões iniciais das implementações em Python e C++, dos scripts de entradas, testes, medição e gráficos; execução dos experimentos; apoio à interpretação dos resultados e à redação inicial do relatório e da apresentação. As medições apresentadas foram executadas no ambiente descrito. Os integrantes devem revisar os materiais e ser capazes de explicar o código e a análise, conforme exigido no projeto."),
-              p("<b>Limitações:</b> A distribuição de responsabilidades acima ainda requer confirmação da equipe; o link público do GitHub não está incluído neste PDF. Não se atribuem a integrantes verificações individuais que ainda não foram informadas."),
+              p("<b>Limitações:</b> A distribuição de responsabilidades acima ainda requer confirmação da equipe. Não se atribuem a integrantes verificações individuais que ainda não foram informadas."),
               Spacer(1, 12),
               p("Fim do relatório.", "CaptionCustom")]
     doc.build(story)
