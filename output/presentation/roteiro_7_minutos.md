@@ -1,0 +1,12 @@
+# Roteiro de apresentação (até 7 minutos)
+
+1. **0:00-0:40 - Bruno:** problema, equipe e pergunta experimental.
+2. **0:40-1:40 - Bruno:** permutações e backtracking; conferir compreensão das quatro versões.
+3. **1:40-2:35 - Diego:** limites assintóticos e por que a poda ajuda.
+4. **2:35-3:25 - Gustavo:** entradas, semente, repetição, temporização e testes.
+5. **3:25-4:25 - Gustavo:** gráfico log-log e comparação entre algoritmos e linguagens.
+6. **4:25-5:20 - Diego:** números de n=9 e limites de medição.
+7. **5:20-6:35 - Pablo:** P, NP e completamento NP-completo; fonte Gent et al. (2017).
+8. **6:35-7:00 - Todos:** conclusão e transição para perguntas.
+
+As falas são uma distribuição proposta. Cada integrante deve revisar e conseguir explicar qualquer trecho do código e da análise antes da apresentação.
